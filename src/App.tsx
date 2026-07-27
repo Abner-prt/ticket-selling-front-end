@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { MainLayout } from './components/layout/MainLayout';
 import { Home } from './pages/Home';
+import { EventDetail } from './pages/EventDetail';
 import './index.css';
 
 function App() {
@@ -10,7 +11,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           {/* <Route path="/events" element={<EventsCatalog />} /> */}
-          {/* <Route path="/events/:id" element={<EventDetail />} /> */}
+          <Route path="/events/:id" element={<EventDetail />} />
           {/* <Route path="/cart" element={<Cart />} /> */}
           {/* <Route path="/checkout" element={<Checkout />} /> */}
           {/* <Route path="/my-purchases" element={<MyPurchases />} /> */}

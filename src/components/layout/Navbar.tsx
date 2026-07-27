@@ -44,7 +44,7 @@ export function Navbar() {
                 <Icon className={`w-6 h-6 z-10 transition-transform ${isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : ''}`} />
                 <span className="sr-only">{item.name}</span>
                 
-                {/* Tooltip on hover */}
+                {/* Tooltip al pasar el mouse */}
                 <span className="absolute -top-10 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all px-2 py-1 bg-slate-800 text-xs rounded-md pointer-events-none whitespace-nowrap border border-white/10">
                   {item.name}
                 </span>

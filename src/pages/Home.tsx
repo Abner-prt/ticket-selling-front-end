@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router';
 
 export function Home() {
   return (
@@ -31,9 +32,9 @@ export function Home() {
           transition={{ duration: 0.5, delay: 1.2 }}
           className="pointer-events-auto"
         >
-          <button className="px-10 py-5 bg-white text-black font-black text-lg rounded-full transition-transform hover:scale-105 hover:bg-slate-200 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+          <Link to="/events/1" className="inline-block px-10 py-5 bg-white text-black font-black text-lg rounded-full transition-transform hover:scale-105 hover:bg-slate-200 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
             EXPLORAR CATÁLOGO
-          </button>
+          </Link>
         </motion.div>
       </div>
     </div>
