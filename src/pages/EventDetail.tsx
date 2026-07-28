@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Ticket as TicketIcon, AlertCircle } from 'lucide-react';
 import { AuroraBackground } from '../components/react-bits/AuroraBackground';
 import { ShinyText } from '../components/react-bits/ShinyText';
