@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
 import { Home } from './pages/Home';
 import { EventDetail } from './pages/EventDetail';
+import { Cart } from './pages/Cart';
+import { Transactions } from './pages/Transactions';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthProvider } from './context/AuthContext';
@@ -18,6 +20,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/events" element={<EventsCatalog />} />
             <Route path="/events/:id" element={<EventDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/transactions" element={<Transactions />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
