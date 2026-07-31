@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogIn, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Mail, Lock, AlertCircle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Login() {
@@ -11,7 +11,9 @@ export function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+  const successMessage = location.state?.successMessage || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +48,17 @@ export function Login() {
               <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Bienvenido</h2>
               <p className="text-slate-500 font-medium">Ingresa tus credenciales para continuar</p>
             </div>
+
+            {successMessage && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 flex gap-3 text-sm mb-6 items-center"
+              >
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+                <p>{successMessage}</p>
+              </motion.div>
+            )}
 
             {error && (
               <motion.div 
