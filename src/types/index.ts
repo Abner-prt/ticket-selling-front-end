@@ -1,14 +1,15 @@
 export interface Event {
-  id: string;
+  id: number;
   title: string;
   description: string;
   date: string;
-  time: string;
   location: string;
-  imageUrl: string;
-  category: 'Concierto' | 'Deportes' | 'Teatro' | 'Festival' | 'Familiar';
   price: number;
+  totalTickets: number;
   availableTickets: number;
+  // Campos visuales (a implementar en la base de datos después o se mapean localmente)
+  imageUrl?: string;
+  category?: 'Concierto' | 'Deportes' | 'Teatro' | 'Festival' | 'Familiar';
 }
 
 // Wrapper unificado de respuestas del API

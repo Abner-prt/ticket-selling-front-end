@@ -9,16 +9,16 @@ import type { Event } from '../types';
 
 //datos inventados btw para btns y executions que se haran despues al implementar backend
 const MOCK_EVENT: Event = {
-  id: '1',
-  title: 'Concierto Épico 2026',
-  description: 'Vive la experiencia musical más impresionante del año con artistas invitados sorpresa y un espectáculo de luces inolvidable. ¡No te quedes sin tu entrada para este evento espectacular!',
-  date: '2026-11-15',
-  time: '20:00',
-  location: 'Estadio Nacional',
+  id: 1,
+  title: 'Concierto de Luis Miguel',
+  description: 'Un espectáculo inolvidable reviviendo los más grandes éxitos del sol de México. Una noche llena de romanticismo, boleros y mariachi en vivo. Prepárate para cantar a todo pulmón.',
+  date: '2026-11-20T21:00:00Z',
+  location: 'Auditorio Nacional',
   imageUrl: 'https://images.unsplash.com/photo-1540039155732-6847350057c0?auto=format&fit=crop&q=80',
   category: 'Concierto',
-  price: 600,
-  availableTickets: 1165,
+  price: 250.00,
+  totalTickets: 1000,
+  availableTickets: 300
 };
 
 export function EventDetail() {
@@ -51,11 +51,11 @@ export function EventDetail() {
           <div className="flex flex-wrap justify-center lg:justify-end gap-4">
             <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[120px]">
               <Calendar className="w-8 h-8 text-blue-400 mb-2" />
-              <span className="text-slate-200 font-medium">{event.date}</span>
+              <span className="text-slate-200 font-medium">{new Date(event.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
             </div>
             <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[120px]">
               <Clock className="w-8 h-8 text-violet-400 mb-2" />
-              <span className="text-slate-200 font-medium">{event.time}</span>
+              <span className="text-slate-200 font-medium">{new Date(event.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
             <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[120px]">
               <MapPin className="w-8 h-8 text-amber-400 mb-2" />

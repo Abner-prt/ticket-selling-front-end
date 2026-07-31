@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/layout/PrivateRoute';
+import { EventsCatalog } from './pages/EventsCatalog';
 import './index.css';
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
-            {/* <Route path="/events" element={<EventsCatalog />} /> */}
+            <Route path="/events" element={<EventsCatalog />} />
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
