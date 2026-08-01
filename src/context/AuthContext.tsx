@@ -37,12 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (data: RegisterRequest) => {
-    const response = await api.post<ApiResponse<AuthData>>('/api/auth/register', data);
-    const { user: userData, token } = response.data.data;
-    
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', JSON.stringify(token));
-    setUser(userData);
+    await api.post<ApiResponse<AuthData>>('/api/auth/register', data);
+    // Ya no hacemos login automático aquí
   };
 
   const logout = () => {
