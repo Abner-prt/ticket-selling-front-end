@@ -3,13 +3,14 @@ import { motion } from 'framer-motion';
 import { Trash2, ShoppingCart, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { CheckoutModal } from '../components/CheckoutModal';
 
 export const Cart = () => {
   const { items, removeFromCart, updateQuantity, total } = useCart();
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const handleCheckout = async () => {
-    // TODO: Implementar pago real más adelante
-    alert('Función de pago deshabilitada temporalmente hasta que se implemente la pasarela.');
+  const handleCheckout = () => {
+    setIsCheckoutOpen(true);
   };
 
   if (items.length === 0) {
@@ -98,29 +99,17 @@ export const Cart = () => {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded">
-                  {error}
-                </div>
-              )}
-
               <button 
                 onClick={handleCheckout}
-                disabled={loading}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-70"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
-                {loading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                ) : (
-                  <>
-                    <CreditCard className="w-5 h-5" /> Pagar Ahora
-                  </>
-                )}
+                <CreditCard className="w-5 h-5" /> Pagar Ahora
               </button>
             </div>
           </div>
         </div>
       </div>
+      <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} />
     </div>
   );
 };
