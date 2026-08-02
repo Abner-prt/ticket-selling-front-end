@@ -5,8 +5,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
 
-// Llave pública de prueba de Stripe
-const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+// Llave pública de stripe
+const stripePromise = loadStripe('pk_test_51Tz7uWAAvyQ9NEo33zidPtCxDU7FEcY6Y6GmxBrdw6kmNi3ASh8wEmxELfINcnGikQcmNTL1BIUW41Ae0Iiad9Mc00JcI0OeiC');
 
 const CheckoutForm = ({ onClose }: { onClose: () => void }) => {
   const stripe = useStripe();
