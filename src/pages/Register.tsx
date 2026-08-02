@@ -31,6 +31,7 @@ export function Register() {
     try {
       await register({ firstName, lastName, email, password });
       navigate("/events");
+      navigate('/login', { state: { successMessage: '¡Cuenta creada con éxito! Por favor inicia sesión.' } });
     } catch (err: any) {
       setError(err.response?.data?.message || "Error al registrar usuario");
     } finally {
@@ -180,6 +181,9 @@ export function Register() {
                 className="text-orange-500 font-bold hover:text-orange-600 transition-colors"
               >
                 Inicia sesión aquí
+              ¿Ya tienes una cuenta?{' '}
+              <Link to="/login" className="text-orange-500 font-bold hover:text-orange-600 transition-colors">
+                Inicia sesion aqui
               </Link>
             </div>
           </div>
