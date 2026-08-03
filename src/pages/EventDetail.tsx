@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, ShieldCheck, Plus, Minus, ShoppingCart } from 'lucide-react';
-import apiClient from '../api/client';
+import api from '../services/api';
 import type { EventDto, ResponseDto } from '../types/api';
 import { useCart } from '../context/CartContext';
+import { getEventImage } from '../utils/imageHelper';
 
 export const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +18,7 @@ export const EventDetail = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await apiClient.get<ResponseDto<EventDto>>(`/events/${id}`);
+        const response = await api.get<ResponseDto<EventDto>>(`/api/event/${id}`);
         if (response.data.status) {
           setEvent(response.data.data);
         }
@@ -58,7 +59,7 @@ export const EventDetail = () => {
       {/* Hero Banner */}
       <div className="w-full h-[400px] relative bg-slate-900">
         <img 
-          src={`https://images.unsplash.com/photo-1540039155733-d7696d4ebaf7?auto=format&fit=crop&q=80`}
+          src={getEventImage(event.categoryId, event.id, event.title)}
           alt={event.title}
           className="w-full h-full object-cover opacity-40"
         />
@@ -100,7 +101,7 @@ export const EventDetail = () => {
           <div className="bg-white rounded-lg shadow-xl shadow-slate-200/50 p-6 border border-slate-100 sticky top-24">
             <div className="text-center mb-6">
               <span className="text-slate-500 text-sm font-semibold uppercase tracking-wider">Precio por boleto</span>
-              <div className="text-4xl font-bold text-orange-500 mt-1">${event.price.toFixed(2)}</div>
+              <div className="text-4xl font-bold text-orange-500 mt-1">L. {event.price.toFixed(2)}</div>
             </div>
 
             <div className="space-y-4 mb-8">
@@ -125,7 +126,7 @@ export const EventDetail = () => {
               
               <div className="flex justify-between items-center text-lg font-bold text-slate-800 pt-2 border-t border-slate-100">
                 <span>Total:</span>
-                <span>${(event.price * quantity).toFixed(2)}</span>
+                <span>L. {(event.price * quantity).toFixed(2)}</span>
               </div>
             </div>
 

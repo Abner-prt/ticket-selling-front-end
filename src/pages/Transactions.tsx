@@ -1,42 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Ticket, CheckCircle, Clock, QrCode, Calendar, MapPin, Tag } from 'lucide-react';
-import type { OrderHistoryDto } from '../types/api';
-
-// Mocks de compras premium
-const MOCK_ORDERS: OrderHistoryDto[] = [
-  {
-    id: 1042,
-    totalAmount: 1850.00,
-    paymentStatus: 'Completado',
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    items: [
-      {
-        eventId: 1,
-        eventTitle: 'World\'s Hottest Tour - Bad Bunny',
-        quantity: 2,
-        unitPrice: 925.00
-      }
-    ]
-  },
-  {
-    id: 1045,
-    totalAmount: 1500.00,
-    paymentStatus: 'Pendiente',
-    createdAt: new Date().toISOString(),
-    items: [
-      {
-        eventId: 3,
-        eventTitle: 'Mañana Será Bonito Tour - Karol G',
-        quantity: 1,
-        unitPrice: 1500.00
-      }
-    ]
-  }
-];
+import { Ticket, CheckCircle, Clock, Calendar, MapPin, Tag, Loader2, AlertCircle, Download } from 'lucide-react';
+import type { OrderHistoryDto, ResponseDto } from '../types/api';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import QRCode from 'react-qr-code';
+import jsPDF from 'jspdf';
+import { toPng } from 'html-to-image';
 
 export const Transactions = () => {
-  const [orders] = useState<OrderHistoryDto[]>(MOCK_ORDERS);
+  const [orders, setOrders] = useState<OrderHistoryDto[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleDownloadPDF = async (orderId: number, itemIndex: number, eventTitle: string) => {
+    const elementId = `ticket-${orderId}-${itemIndex}`;
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    setIsDownloading(elementId);
+    try {
+      const dataUrl = await toPng(element, { backgroundColor: '#ffffff', cacheBust: true, pixelRatio: 2 });
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const elWidth = element.clientWidth || 1;
+      const elHeight = element.clientHeight || 1;
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (elHeight * pdfWidth) / elWidth;
+      
+      pdf.addImage(dataUrl, 'PNG', 0, 10, pdfWidth, pdfHeight);
+      pdf.save(`Boleto_${eventTitle.replace(/[^a-zA-Z0-9]/g, '_')}_Orden_${orderId}.pdf`);
+    } catch (err: any) {
+      alert("Error al generar el PDF: " + (err.message || "Error desconocido"));
+      console.error("Error generating PDF", err);
+    } finally {
+      setIsDownloading(null);
+    }
+  };
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await api.get<ResponseDto<OrderHistoryDto[]>>('/api/orders/my-orders');
+        if (response.data.status) {
+          setOrders(response.data.data);
+        } else {
+          setError(response.data.message || 'Error al obtener historial');
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Error de conexión con el servidor');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
 
 
   return (
@@ -60,7 +89,27 @@ export const Transactions = () => {
           </div>
         </motion.div>
 
-        {orders.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            >
+              <Loader2 className="w-16 h-16 text-orange-500" />
+            </motion.div>
+            <p className="mt-4 font-semibold text-slate-500">Cargando tus compras...</p>
+          </div>
+        ) : error ? (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-16 bg-red-50/50 rounded-3xl border border-red-100 shadow-sm"
+          >
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-red-900 mb-2">Ups, algo salió mal</h2>
+            <p className="text-red-700 max-w-md mx-auto">{error}</p>
+          </motion.div>
+        ) : orders.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -81,7 +130,7 @@ export const Transactions = () => {
                   key={order.id} 
                   className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300"
                 >
-                  {/* Cabecera de la Orden */}
+                  {/* Cabecera de la orden */}
                   <div className="bg-slate-900 px-8 py-5 flex flex-wrap gap-4 justify-between items-center text-white relative overflow-hidden">
                     <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-400 via-slate-900 to-slate-900 pointer-events-none" />
                     
@@ -104,7 +153,7 @@ export const Transactions = () => {
                       <div className="h-10 w-px bg-slate-700 hidden sm:block" />
 
                       <div>
-                        {order.paymentStatus === 'Completado' ? (
+                        {order.paymentStatus === 'Completado' || order.paymentStatus === 'Completed' ? (
                           <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-xl text-sm font-bold shadow-inner">
                             <CheckCircle className="w-5 h-5" /> Completado
                           </div>
@@ -117,15 +166,15 @@ export const Transactions = () => {
                     </div>
                   </div>
                   
-                  {/* Detalle de Boletos (Cuerpo) */}
+                  {/* Detalle de boletos */}
                   <div className="p-8 bg-slate-50/50">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {order.items.map((item, i) => (
-                        <div key={i} className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex shadow-sm group hover:border-orange-200 transition-colors">
+                        <div key={i} id={`ticket-${order.id}-${i}`} className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex shadow-sm group hover:border-orange-200 transition-colors">
                           
-                          {/* Sección Izquierda: Info del Evento */}
+                          {/* Seccion izquierda info del evento */}
                           <div className="flex-grow p-6 flex flex-col justify-between border-r border-slate-200 border-dashed relative">
-                            {/* Decoración recorte boleto */}
+                            {/* Decoracion recorte boleto */}
                             <div className="absolute -right-3 -top-3 w-6 h-6 bg-slate-50 rounded-full border-b border-l border-slate-200" />
                             <div className="absolute -right-3 -bottom-3 w-6 h-6 bg-slate-50 rounded-full border-t border-l border-slate-200" />
 
@@ -159,18 +208,30 @@ export const Transactions = () => {
                             </div>
                           </div>
 
-                          {/* Sección Derecha: QR Code Simulado */}
+                          {/* Seccion derecha codigo qr */}
                           <div className="w-40 bg-slate-50 p-4 flex flex-col items-center justify-center relative">
-                            {order.paymentStatus === 'Completado' ? (
+                            {order.paymentStatus === 'Completado' || order.paymentStatus === 'Completed' ? (
                               <>
                                 <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-200 group-hover:scale-105 group-hover:border-orange-300 transition-all duration-300">
-                                  <QrCode className="w-20 h-20 text-slate-800" strokeWidth={1.5} />
+                                  <QRCode 
+                                    value={`${window.location.origin}/verify/${order.id}`} 
+                                    size={100} 
+                                    level="L" 
+                                  />
                                 </div>
                                 <p className="text-[10px] font-mono text-slate-400 mt-3 tracking-widest uppercase">
-                                  ID: {Math.random().toString(36).substr(2, 8)}
+                                  ID: {order.id.toString().padStart(4, '0')}-{i}
                                 </p>
-                                <button className="mt-3 text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors">
-                                  Descargar PDF
+                                <button 
+                                  onClick={() => handleDownloadPDF(order.id, i, item.eventTitle)}
+                                  disabled={isDownloading === `ticket-${order.id}-${i}`}
+                                  className="mt-3 flex items-center gap-1 text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors disabled:opacity-50"
+                                >
+                                  {isDownloading === `ticket-${order.id}-${i}` ? (
+                                    <><Loader2 className="w-3 h-3 animate-spin" /> Guardando...</>
+                                  ) : (
+                                    <><Download className="w-3 h-3" /> Descargar PDF</>
+                                  )}
                                 </button>
                               </>
                             ) : (
