@@ -5,6 +5,16 @@ export interface ResponseDto<T> {
   data: T;
 }
 
+export interface PageDto<T> {
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  items: T[];
+}
+
 export interface EventDto {
   id: number;
   title: string;
@@ -14,6 +24,8 @@ export interface EventDto {
   price: number;
   totalTickets: number;
   availableTickets: number;
+  categoryId: number;
+  categoryName: string;
 }
 
 export interface UserDto {

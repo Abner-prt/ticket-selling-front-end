@@ -3,10 +3,13 @@ import { motion } from 'framer-motion';
 import { Trash2, ShoppingCart, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { CheckoutModal } from '../components/CheckoutModal';
+import { getEventImage } from '../utils/imageHelper';
 
 export const Cart = () => {
   const { items, removeFromCart, updateQuantity, total } = useCart();
+  const { isAuthenticated } = useAuth();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const handleCheckout = () => {
@@ -42,13 +45,13 @@ export const Cart = () => {
                 className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-6 items-center"
               >
                 <div className="w-full sm:w-24 h-24 bg-slate-100 rounded overflow-hidden shrink-0">
-                  <img src="https://images.unsplash.com/photo-1540039155733-d7696d4ebaf7?auto=format&fit=crop&q=80&w=200" alt="Thumb" className="w-full h-full object-cover" />
+                  <img src={getEventImage(item.event.categoryId, item.event.id, item.event.title)} alt="Thumb" className="w-full h-full object-cover" />
                 </div>
                 
                 <div className="flex-1">
                   <h3 className="font-bold text-lg text-slate-800 mb-1">{item.event.title}</h3>
                   <p className="text-slate-500 text-sm">{new Date(item.event.date).toLocaleDateString()} - {item.event.location}</p>
-                  <div className="text-orange-500 font-bold mt-2">${item.event.price.toFixed(2)}</div>
+                  <div className="text-orange-500 font-bold mt-2">L. {item.event.price.toFixed(2)}</div>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -65,7 +68,7 @@ export const Cart = () => {
                   </div>
                   
                   <div className="w-24 text-right font-bold text-slate-800">
-                    ${(item.event.price * item.quantity).toFixed(2)}
+                    L. {(item.event.price * item.quantity).toFixed(2)}
                   </div>
 
                   <button 
@@ -86,25 +89,34 @@ export const Cart = () => {
               <div className="space-y-4 mb-6 border-b border-slate-100 pb-6">
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal ({items.reduce((a,b)=>a+b.quantity, 0)} boletos)</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>L. {total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Cargos de servicio</span>
-                  <span>$0.00</span>
+                  <span>L. 0.00</span>
                 </div>
               </div>
               
               <div className="flex justify-between items-center text-2xl font-bold text-slate-900 mb-8">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>L. {total.toFixed(2)}</span>
               </div>
 
-              <button 
-                onClick={handleCheckout}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-              >
-                <CreditCard className="w-5 h-5" /> Pagar Ahora
-              </button>
+              {isAuthenticated ? (
+                <button 
+                  onClick={handleCheckout}
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                >
+                  <CreditCard className="w-5 h-5" /> Pagar Ahora
+                </button>
+              ) : (
+                <Link 
+                  to="/login"
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-center"
+                >
+                  Inicia sesión para pagar
+                </Link>
+              )}
             </div>
           </div>
         </div>

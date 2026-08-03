@@ -176,14 +176,8 @@ export function Register() {
 
             <div className="mt-8 text-center text-slate-500 text-sm">
               ¿Ya tienes una cuenta?{" "}
-              <Link
-                to="/login"
-                className="text-orange-500 font-bold hover:text-orange-600 transition-colors"
-              >
-                Inicia sesión aquí
-              ¿Ya tienes una cuenta?{' '}
               <Link to="/login" className="text-orange-500 font-bold hover:text-orange-600 transition-colors">
-                Inicia sesion aqui
+                Inicia sesión aquí
               </Link>
             </div>
           </div>

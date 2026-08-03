@@ -4,14 +4,14 @@ import { X, CreditCard, Lock } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
+import api from '../services/api';
 
-// Llave pública de prueba de Stripe
-const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+const stripePromise = loadStripe('pk_test_51Tz7uWAAvyQ9NEo33zidPtCxDU7FEcY6Y6GmxBrdw6kmNi3ASh8wEmxELfINcnGikQcmNTL1BIUW41Ae0Iiad9Mc00JcI0OeiC');
 
 const CheckoutForm = ({ onClose }: { onClose: () => void }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { total, clearCart } = useCart();
+  const { items, total, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -26,17 +26,57 @@ const CheckoutForm = ({ onClose }: { onClose: () => void }) => {
     setLoading(true);
     setError(null);
 
-    // TODO: Aquí en el futuro llamaremos a nuestro backend para crear el PaymentIntent
-    // Por ahorita se simula un tiempo de espera de 2 segundos para mostrar el UI
-    setTimeout(() => {
+    try {
+
+      const amountInCents = Math.round(total * 100);
+      const { data: intentData } = await api.post('/api/payments/create-intent', { amount: amountInCents });
+      const clientSecret = intentData.clientSecret;
+
+      if (!clientSecret) {
+        throw new Error('No se pudo obtener el secreto del cliente para el pago.');
+      }
+
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) throw new Error('El elemento de tarjeta no existe.');
+
+      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+        }
+      });
+
+      if (paymentResult.error) {
+        throw new Error(paymentResult.error.message || 'Error al procesar la tarjeta.');
+      }
+
+      if (paymentResult.paymentIntent && paymentResult.paymentIntent.status === 'succeeded') {
+  
+        const orderItems = items.map(item => ({
+          eventId: item.event.id,
+          quantity: item.quantity
+        }));
+
+        await api.post('/api/orders/checkout', { items: orderItems });
+
+        setSuccess(true);
+      
+        setTimeout(() => {
+          clearCart();
+          onClose();
+        }, 2000);
+      } else {
+        throw new Error('El pago no pudo completarse satisfactoriamente.');
+      }
+
+    } catch (err: any) {
+      let errorMessage = err.response?.data?.message || err.message || 'Ocurrió un error inesperado al procesar tu pago.';
+      if (errorMessage.includes('Amount must convert to at least')) {
+        errorMessage = 'El monto debe ser equivalente a al menos $0.50 USD para que Stripe lo procese (aprox. L. 13.00).';
+      }
+      setError(errorMessage);
+    } finally {
       setLoading(false);
-      setSuccess(true);
-      // clear al carrito
-      setTimeout(() => {
-        clearCart();
-        onClose();
-      }, 2000);
-    }, 2000);
+    }
   };
 
   if (success) {
@@ -86,7 +126,7 @@ const CheckoutForm = ({ onClose }: { onClose: () => void }) => {
       <div className="border-t border-slate-100 pt-6">
         <div className="flex justify-between items-center mb-6">
           <span className="text-slate-600 font-medium">Total a Pagar</span>
-          <span className="text-2xl font-bold text-slate-900">${total.toFixed(2)}</span>
+          <span className="text-2xl font-bold text-slate-900">L. {total.toFixed(2)}</span>
         </div>
 
         <button
